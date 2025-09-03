@@ -9,11 +9,7 @@ export default function Gallery({ images }: { images: { src: string }[] }) {
           <img src={im.src} alt={`Nano Banana output ${i + 1}`} className="w-full h-auto" />
           <figcaption className="flex items-center justify-between px-3 py-2 text-xs text-neutral-400">
             <span>Result {i + 1}</span>
-            <a
-              href={im.src}
-              download={`nano-banana-${i + 1}.png`}
-              className="underline hover:no-underline"
-            >
+            <a href={im.src} download={`nano-banana-${i + 1}.png`} className="underline hover:no-underline">
               Download
             </a>
           </figcaption>

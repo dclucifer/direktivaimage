@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { stripDataURL } from "../../../lib/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,16 +21,12 @@ export async function POST(req: NextRequest) {
     if (Array.isArray(images)) {
       for (const img of images) {
         if (!img?.base64) continue;
-        const base64 = String(img.base64).replace(/^data:[^;]+;base64,/, "");
+        const base64 = stripDataURL(img.base64);
         parts.push({ inlineData: { mimeType: img.mimeType || "image/png", data: base64 } });
       }
     }
 
-    const response = await ai.models.generateContent({
-      model,
-      contents: parts,
-    });
-
+    const response = await ai.models.generateContent({ model, contents: parts });
     const out: { base64: string; mimeType: string }[] = [];
     const candidates = (response as any)?.candidates || [];
     if (candidates[0]?.content?.parts) {
@@ -39,14 +36,10 @@ export async function POST(req: NextRequest) {
         }
       }
     }
-
     if (!out.length) {
-      const text =
-        (candidates[0]?.content?.parts || []).find((p: any) => p.text)?.text ||
-        "No image output received.";
+      const text = (candidates[0]?.content?.parts || []).find((p: any) => p.text)?.text || "No image output received.";
       return NextResponse.json({ images: [], note: text }, { status: 200 });
     }
-
     return NextResponse.json({ images: out }, { status: 200 });
   } catch (err: any) {
     console.error("Nano Banana API error", err);

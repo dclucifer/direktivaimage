@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import Uploader from '@/components/Uploader';
-import Gallery from '@/components/Gallery';
+import Uploader from '../components/Uploader';
+import Gallery from '../components/Gallery';
+import { fileToDataURL } from '../lib/utils';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
@@ -29,9 +30,7 @@ export default function Home() {
       const data = await res.json();
 
       if (data?.images?.length) {
-        setImages(
-          data.images.map((im: any) => ({ src: `data:${im.mimeType || 'image/png'};base64,${im.base64}` }))
-        );
+        setImages(data.images.map((im: any) => ({ src: `data:${im.mimeType || 'image/png'};base64,${im.base64}` })));
       } else {
         setImages([]);
         if (data?.note) setNote(data.note);
@@ -60,9 +59,7 @@ export default function Home() {
               placeholder="Jelaskan edit/gambar yang diinginkan (contoh: Ganti background jadi minimalis putih, pertahankan wajah yang sama)"
               className="w-full h-36 rounded-xl bg-neutral-900 border border-neutral-800 p-4 outline-none focus:ring-2 focus:ring-amber-500"
             />
-
             <Uploader files={files} setFiles={setFiles} />
-
             <button
               onClick={onGenerate}
               disabled={loading || !prompt.trim()}
@@ -70,12 +67,8 @@ export default function Home() {
             >
               {loading ? 'Generating…' : 'Generate / Edit'}
             </button>
-
-            {note && (
-              <p className="text-sm text-neutral-400 mt-2">{note}</p>
-            )}
+            {note && <p className="text-sm text-neutral-400 mt-2">{note}</p>}
           </div>
-
           <aside className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
             <h3 className="font-medium mb-2">Tips cepat</h3>
             <ul className="list-disc ml-5 space-y-1 text-sm text-neutral-300">
@@ -92,17 +85,9 @@ export default function Home() {
         </section>
 
         <footer className="mt-12 text-xs text-neutral-500">
-          <p>
-            Demo. Jangan upload konten yang melanggar hak cipta/privasi.
-          </p>
+          <p>Demo. Jangan upload konten yang melanggar hak cipta/privasi.</p>
         </footer>
       </div>
     </main>
   );
-}
-
-async function fileToDataURL(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-  return `data:${file.type || 'image/png'};base64,${b64}`;
 }
