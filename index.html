@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliator Studio - Prototipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        .card {
+            background-color: #1F2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        .form-select, .form-textarea {
+            background-color: #374151; /* bg-gray-700 */
+            border-color: #4B5563; /* border-gray-600 */
+            color: #D1D5DB; /* text-gray-300 */
+        }
+        .btn-primary {
+            background-color: #4F46E5; /* bg-indigo-600 */
+            color: white;
+            transition: background-color: 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #4338CA; /* bg-indigo-700 */
+        }
+        .btn-secondary {
+            background-color: #374151; /* bg-gray-700 */
+            color: #D1D5DB; /* text-gray-300 */
+            transition: background-color: 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #4B5563; /* bg-gray-600 */
+        }
+        .upload-box {
+            border: 2px dashed #4B5563; /* border-gray-600 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: border-color: 0.2s;
+        }
+        .upload-box:hover {
+            border-color: #6B7280; /* border-gray-500 */
+        }
+        .loader {
+            border: 4px solid #4B5563;
+            border-top: 4px solid #4F46E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .delete-overlay, .result-overlay {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .preview-container:hover .delete-overlay, .result-image-container:hover .result-overlay {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="text-gray-200 p-4 sm:p-6 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-white">Affiliator Studio</h1>
+            <div class="flex items-center space-x-4">
+                <button id="help-btn" class="text-sm text-gray-400 hover:text-white">Bantuan</button>
+                <button id="privacy-btn" class="text-sm text-gray-400 hover:text-white">Privasi</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2 flex flex-col gap-8">
+                <!-- 1. Unggah Aset Anda -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-1 text-white">1. Unggah Gambar</h2>
+                    <p class="text-sm text-gray-400 mb-6">Pilih gambar produk dan subjek/model Anda.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Product Upload -->
+                        <div>
+                            <h3 class="font-medium text-white mb-2">Gambar Produk</h3>
+                            <div class="relative">
+                                <label for="product-upload" class="upload-box flex flex-col items-center justify-center p-6 text-center cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                    <p class="text-sm text-gray-400">Klik untuk mengunggah</p>
+                                </label>
+                                <input type="file" id="product-upload" class="hidden" accept="image/*">
+                                <div id="product-preview-container" class="hidden preview-container">
+                                    <img id="product-preview-img" class="w-full h-auto rounded-lg object-cover" alt="Pratinau Produk">
+                                    <div id="delete-product-overlay" class="delete-overlay absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center rounded-lg cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        <p class="text-white text-sm mt-2">Ganti Gambar</p>
+                                    </div>
+                                    <div id="product-info" class="text-xs text-gray-400 mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Subject Upload -->
+                         <div>
+                            <h3 class="font-medium text-white mb-2">Gambar Subjek</h3>
+                             <div class="relative">
+                                <label for="subject-upload" class="upload-box flex flex-col items-center justify-center p-6 text-center cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                    <p class="text-sm text-gray-400">Klik untuk mengunggah</p>
+                                </label>
+                                <input type="file" id="subject-upload" class="hidden" accept="image/*">
+                                <div id="subject-preview-container" class="hidden preview-container">
+                                    <img id="subject-preview-img" class="w-full h-auto rounded-lg object-cover" alt="Pratinau Subjek">
+                                    <div id="delete-subject-overlay" class="delete-overlay absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center rounded-lg cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        <p class="text-white text-sm mt-2">Ganti Gambar</p>
+                                    </div>
+                                    <div id="subject-info" class="text-xs text-gray-400 mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 2. Atur Komposisi Adegan -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold mb-1 text-white">2. Atur Komposisi Adegan</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <label for="product-category" class="block text-sm font-medium mb-2 text-gray-300">Kategori Produk</label>
+                            <select id="product-category" class="form-select block w-full rounded-md shadow-sm">
+                                <option>Sepatu & Alas Kaki</option>
+                                <option>Pakaian & Aksesoris</option>
+                                <option>Elektronik & Gadget</option>
+                                <option>Kecantikan & Perawatan Diri</option>
+                                <option>Makanan & Minuman</option>
+                                <option>Dekorasi Rumah</option>
+                                <option>Mainan & Hobi</option>
+                                <option selected>Peralatan Rumah Tangga</option>
+                                <option>Mom & Baby</option>
+                                <option>Otomotif</option>
+                                <option>Lainnya (Other)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="theme" class="block text-sm font-medium mb-2 text-gray-300">Tema Latar</label>
+                            <select id="theme" class="form-select block w-full rounded-md shadow-sm">
+                                <option>Default (Sesuai Asli)</option>
+                                <option>Gaya Hidup Sehari-hari (Lifestyle)</option>
+                                <option>Studio Profesional (Cerah & Bersih)</option>
+                                <option selected>Interior Modern & Minimalis</option>
+                                <option>Suasana Kafe atau Ruangan Hangat</option>
+                                <option>Pemandangan Alam Terbuka</option>
+                                <option>Latar Perkotaan (Urban Street)</option>
+                                <option>Gradien Warna & Abstrak</option>
+                                <option>Panggung Gelap & Elegan</option>
+                                <option>Di Dalam Toko atau Rak Display</option>
+                                <option>Tekstur Mewah (Marmer, Kayu)</option>
+                                <option>Lampu Bokeh atau Pesta</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="camera-angle" class="block text-sm font-medium mb-2 text-gray-300">Sudut & Pengambilan Kamera</label>
+                            <select id="camera-angle" class="form-select block w-full rounded-md shadow-sm">
+                                <option>Default (Sesuai Asli)</option>
+                                <option>Full Shot</option>
+                                <option>Close Up</option>
+                                <option>Eye-level</option>
+                                <option>Low Angle</option>
+                                <option>High Angle</option>
+                                <option>Dutch Angle</option>
+                                <option>Over the Shoulder</option>
+                                <option>Macro Shot</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="audience" class="block text-sm font-medium mb-2 text-gray-300">Persona Audiens</label>
+                            <select id="audience" class="form-select block w-full rounded-md shadow-sm">
+                                <option>Audiens Umum</option>
+                                <option>Anak Muda (Gen Z)</option>
+                                <option>Profesional</option>
+                                <option>Keluarga</option>
+                                <option>Pecinta Alam / Outdoor</option>
+                                <option>Gamer</option>
+                                <option>Pecinta Kebugaran (Fitness Enthusiast)</option>
+                                <option>Pekerja Kantoran</option>
+                                <option>Pelajar & Mahasiswa</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Hasil -->
+            <div class="lg-col-span-1 w-full">
+                <div class="card p-6 sticky top-8">
+                    <h2 class="text-lg font-semibold mb-6 text-white">3. Hasilkan & Unduh</h2>
+                    <button id="generate-btn" class="w-full btn-primary font-semibold py-3 px-4 rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span>Hasilkan Kreatif</span>
+                    </button>
+                    <div id="result-container" class="mt-6 hidden">
+                        <div id="loading-state" class="text-center py-8 hidden">
+                            <div class="loader mx-auto"></div>
+                            <p id="loading-text" class="mt-4 text-sm text-gray-400">AI sedang bekerja...</p>
+                        </div>
+                        <div id="success-state" class="hidden">
+                            <div class="grid grid-cols-2 gap-4" id="result-grid">
+                                <!-- Hasil gambar akan dimasukkan di sini oleh JavaScript -->
+                            </div>
+                            <p class="text-xs text-center text-gray-400 mt-4">Klik gambar untuk pratinjau. Arahkan kursor untuk mengunduh.</p>
+                        </div>
+                    </div>
+                     <p id="error-msg" class="text-red-400 text-sm text-center mt-4 hidden"></p>
+
+                    <!-- Text Generation Section -->
+                    <div id="text-generation-container" class="mt-8 hidden">
+                        <div class="border-t border-gray-700 pt-6">
+                             <h2 class="text-lg font-semibold mb-4 text-white flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 2a.75.75 0 01.692.462l1.667 3.384a.75.75 0 00.56.41l3.75.542a.75.75 0 01.416 1.285l-2.712 2.644a.75.75 0 00-.215.662l.64 3.734a.75.75 0 01-1.088.791L10 13.347l-3.35 1.76a.75.75 0 01-1.088-.79l.64-3.735a.75.75 0 00-.215-.662L2.28 8.083a.75.75 0 01.416-1.285l3.75-.542a.75.75 0 00.56-.41L8.642 2.462A.75.75 0 0110 2z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Hasilkan Teks Pemasaran</span>
+                            </h2>
+                            <button id="generate-text-btn" class="w-full btn-primary font-semibold py-2.5 px-4 rounded-lg">Buat Caption Iklan</button>
+                            <div id="text-loading-state" class="text-center py-4 hidden">
+                                <div class="loader mx-auto"></div>
+                                 <p class="mt-2 text-sm text-gray-400">AI sedang menulis...</p>
+                            </div>
+                            <div id="text-success-state" class="mt-4 hidden">
+                                <textarea id="generated-text" class="form-textarea w-full h-40 rounded-md" readonly></textarea>
+                                <button id="copy-text-btn" class="w-full btn-secondary font-semibold py-2 px-4 rounded-lg mt-2">Salin Teks</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="preview-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="max-w-4xl max-h-full">
+            <img id="modal-img" src="#" class="max-w-full max-h-full object-contain" alt="Pratinjau Gambar Hasil">
+        </div>
+    </div>
+
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="card max-w-2xl w-full p-6 relative">
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 class="text-xl font-bold mb-4">Bantuan</h2>
+            <div class="text-gray-300 space-y-4">
+                <p>Selamat datang di Affiliator Studio! Aplikasi ini membantu Anda membuat gambar promosi produk berkualitas tinggi dengan mudah menggunakan AI.</p>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li><strong>Unggah Gambar Produk:</strong> Pilih gambar produk Anda yang jelas.</li>
+                    <li><strong>Unggah Gambar Subjek:</strong> Pilih gambar model atau subjek yang akan "menggunakan" produk Anda. AI akan mempertahankan pose dan subjek dari gambar ini.</li>
+                    <li><strong>Atur Komposisi:</strong> Sesuaikan kategori produk dan tema latar untuk memandu AI dalam menciptakan suasana yang Anda inginkan.</li>
+                    <li><strong>Hasilkan & Unduh:</strong> Klik tombol "Hasilkan Kreatif". AI akan bekerja menggabungkan kedua gambar Anda dan memberikan 4 variasi hasil. Hasil pertama akan selalu mencoba meniru pose asli.</li>
+                </ol>
+                <p><strong>Tips:</strong> Untuk hasil terbaik, pastikan gambar yang Anda unggah memiliki resolusi yang baik dan pencahayaan yang cukup.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="privacy-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
+         <div class="card max-w-lg w-full p-6 relative">
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 class="text-xl font-bold mb-4">Pengaturan Kunci API</h2>
+            <div class="text-gray-300 space-y-4">
+                <p>Aplikasi ini menggunakan API Gemini untuk menghasilkan gambar. Anda dapat menggunakan kunci API pribadi Anda untuk memanfaatkan kuota Anda sendiri.</p>
+                <div>
+                    <label for="api-key-input" class="block text-sm font-medium mb-2">Kunci API Gemini Anda</label>
+                    <input type="password" id="api-key-input" class="form-select block w-full rounded-md shadow-sm" placeholder="Masukkan kunci API Anda di sini">
+                </div>
+                <button id="save-api-key-btn" class="w-full btn-primary font-semibold py-2.5 px-4 rounded-lg">Simpan Kunci API</button>
+                <p id="api-key-status" class="text-xs text-green-400 text-center mt-2 hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let productFile = null, subjectFile = null;
+        let subjectDimensions = { width: 0, height: 0 };
+        let userApiKey = localStorage.getItem('geminiApiKey') || '';
+
+        const generateBtn = document.getElementById('generate-btn');
+        const errorMsg = document.getElementById('error-msg');
+        const resultContainer = document.getElementById('result-container');
+        const loadingState = document.getElementById('loading-state');
+        const successState = document.getElementById('success-state');
+        const resultGrid = document.getElementById('result-grid');
+        const themeSelect = document.getElementById('theme');
+        const productCategorySelect = document.getElementById('product-category');
+        const cameraAngleSelect = document.getElementById('camera-angle');
+        const audienceSelect = document.getElementById('audience');
+        
+        const helpBtn = document.getElementById('help-btn');
+        const privacyBtn = document.getElementById('privacy-btn');
+        const helpModal = document.getElementById('help-modal');
+        const privacyModal = document.getElementById('privacy-modal');
+        const previewModal = document.getElementById('preview-modal');
+        const modalImg = document.getElementById('modal-img');
+        const apiKeyInput = document.getElementById('api-key-input');
+        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+        const apiKeyStatus = document.getElementById('api-key-status');
+        
+        const textGenerationContainer = document.getElementById('text-generation-container');
+        const generateTextBtn = document.getElementById('generate-text-btn');
+        const textLoadingState = document.getElementById('text-loading-state');
+        const textSuccessState = document.getElementById('text-success-state');
+        const generatedText = document.getElementById('generated-text');
+        const copyTextBtn = document.getElementById('copy-text-btn');
+
+        if(userApiKey) {
+            apiKeyInput.placeholder = "Kunci API sudah tersimpan";
+        }
+
+        const fileToBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+
+        const resetUploadUI = (type) => {
+            if (type === 'product') {
+                productFile = null;
+                document.getElementById('product-upload').value = '';
+            } else {
+                subjectFile = null;
+                subjectDimensions = { width: 0, height: 0 };
+                document.getElementById('subject-upload').value = '';
+            }
+            document.getElementById(`${type}-preview-container`).classList.add('hidden');
+            document.querySelector(`label[for="${type}-upload"]`).classList.remove('hidden');
+            checkGenerateButton();
+        };
+        
+        const handleFileUpload = (event, type) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const previewImg = document.getElementById(`${type}-preview-img`);
+            const infoDiv = document.getElementById(`${type}-info`);
+            
+            if (type === 'product') productFile = file;
+            else subjectFile = file;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                const img = new Image();
+                img.onload = () => {
+                    const dimensionsText = `${img.naturalWidth}x${img.naturalHeight}`;
+                    infoDiv.textContent = `${file.name} (${(file.size / 1024).toFixed(2)} KB) - ${dimensionsText}`;
+                    if (type === 'subject') {
+                        subjectDimensions.width = img.naturalWidth;
+                        subjectDimensions.height = img.naturalHeight;
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            document.getElementById(`${type}-preview-container`).classList.remove('hidden');
+            document.querySelector(`label[for="${type}-upload"]`).classList.add('hidden');
+            checkGenerateButton();
+        };
+
+        const checkGenerateButton = () => {
+            generateBtn.disabled = !(productFile && subjectFile);
+        };
+        
+        const callGeminiAPI = async (payload, model = 'gemini-2.5-flash-image-preview') => {
+             const key = userApiKey;
+             if (!key) {
+                throw new Error("Kunci API Gemini belum diatur. Silakan klik 'Privasi' untuk memasukkan kunci Anda.");
+             }
+             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+             const response = await fetch(apiUrl, {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify(payload)
+             });
+             if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`API Error (${response.status}): ${errorBody}`);
+             }
+             const result = await response.json();
+             if (!result.candidates || result.candidates.length === 0) {
+                throw new Error("AI tidak memberikan respons.");
+             }
+             return result.candidates;
+        };
+        
+        const getAlternativeVariations = (category) => {
+            switch (category) {
+                case 'Pakaian & Aksesoris':
+                case 'Sepatu & Alas Kaki':
+                    return [
+                        " (pose berjalan dinamis, seperti di catwalk)",
+                        " (pose berdiri santai, sedikit menyamping)",
+                        " (close-up dari pinggang ke atas menyorot detail produk)"
+                    ];
+                case 'Peralatan Rumah Tangga':
+                case 'Dekorasi Rumah':
+                case 'Makanan & Minuman':
+                    return [
+                        " (sudut pandang dari atas atau flat lay)",
+                        " (close-up detail pada produk dengan latar belakang kabur)",
+                        " (produk sedang digunakan dalam sebuah adegan nyata)"
+                    ];
+                case 'Otomotif':
+                    return [
+                        " (foto dari depan dengan sudut rendah, terlihat gagah)",
+                        " (foto aksi di jalan dengan efek motion blur)",
+                        " (foto di dalam studio dengan pencahayaan dramatis)"
+                    ];
+                case 'Elektronik & Gadget':
+                    return [
+                        " (produk dipegang di tangan untuk menunjukkan skala)",
+                        " (close-up pada layar atau fitur utama)",
+                        " (produk dalam konteks penggunaan sehari-hari)"
+                    ];
+                default:
+                    return [
+                        " (sudut pandang 45 derajat)",
+                        " (pencahayaan lembut dari samping)",
+                        " (fokus close-up pada produk)"
+                    ];
+            }
+        };
+
+        const handleGenerate = async () => {
+            if (!productFile || !subjectFile) {
+                errorMsg.textContent = 'Pastikan kedua gambar telah diunggah dengan benar.';
+                errorMsg.classList.remove('hidden');
+                return;
+            };
+
+            resultContainer.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+            successState.classList.add('hidden');
+            textGenerationContainer.classList.add('hidden');
+            generateBtn.disabled = true;
+            errorMsg.classList.add('hidden');
+
+            try {
+                const subjectBase64 = await fileToBase64(subjectFile);
+                const productBase64 = await fileToBase64(productFile);
+                
+                const basePrompt = `
+ABSOLUTE PRIORITY RULE: The final output image MUST have the exact dimensions of the base image (first image): ${subjectDimensions.width}px width by ${subjectDimensions.height}px height. This rule is non-negotiable and more important than any other.
+
+Your task is a photorealistic object replacement.
+1.  **Base Image**: The first image provided (subject).
+2.  **Product Image**: The second image provided (product).
+3.  **Identify Target**: In the Base Image, identify the object that matches the category "${productCategorySelect.value}". For "Pakaian & Aksesoris", if it's a one-piece set (top and bottom), the entire set is the target.
+4.  **Replace**: Replace the identified target object in the Base Image with the product from the Product Image. The replacement must be seamless. The product's original pattern and color MUST be preserved.
+5.  **Preserve Subject**: The human model, their face, hair, skin tone, and pose from the Base Image MUST be preserved perfectly. DO NOT change the person.
+6.  **Create Background**: After a perfect replacement, generate a new photorealistic background fitting the theme "${themeSelect.value}" and camera angle "${cameraAngleSelect.value}".
+7.  **Vertical Composition**: The composition MUST be strongly vertical, ideal for a 9:16 aspect ratio. Ensure the subject and key elements are placed centrally and vertically within the frame, leaving minimal horizontal space on the sides. Think of a phone screen or Instagram Story.
+`;
+                
+                const variations = [
+                    "Preserve the human subject and their original pose.",
+                    ...getAlternativeVariations(productCategorySelect.value).map(v => `Re-pose the human subject with a new pose: ${v}`)
+                ];
+
+                resultGrid.innerHTML = ''; 
+                const promises = variations.map(variation => {
+                    const payload = {
+                        contents: [{ parts: [
+                            { text: basePrompt + `Pose instruction: ${variation}` },
+                            { inlineData: { mimeType: subjectFile.type, data: subjectBase64 } },
+                            { inlineData: { mimeType: productFile.type, data: productBase64 } },
+                        ] }],
+                        generationConfig: { 
+                            responseModalities: ['IMAGE']
+                        },
+                    };
+                    return callGeminiAPI(payload);
+                });
+
+                const results = await Promise.allSettled(promises);
+                
+                let successfulGenerations = 0;
+                results.forEach(result => {
+                    if (result.status === 'fulfilled') {
+                        const candidates = result.value;
+                        const base64Data = candidates[0].content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                        if (base64Data) {
+                            successfulGenerations++;
+                            const imageUrl = `data:image/png;base64,${base64Data}`;
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'relative result-image-container';
+                            
+                            const img = document.createElement('img');
+                            img.src = imageUrl;
+                            img.className = 'w-full h-auto rounded-lg cursor-pointer result-image-item';
+                            
+                            const overlay = document.createElement('div');
+                            overlay.className = 'result-overlay absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-lg';
+                            
+                            const downloadButton = document.createElement('button');
+                            downloadButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>`;
+                            downloadButton.className = 'p-2 cursor-pointer';
+                            downloadButton.onclick = (e) => {
+                                 e.stopPropagation(); 
+                                 const link = document.createElement('a');
+                                 link.href = imageUrl;
+                                 link.download = `hasil-kreatif-${Date.now()}.png`;
+                                 link.click();
+                            };
+
+                            overlay.appendChild(downloadButton);
+                            resultItem.appendChild(img);
+                            resultItem.appendChild(overlay);
+                            resultGrid.appendChild(resultItem);
+                        }
+                    } else {
+                         console.error("A generation promise failed:", result.reason);
+                    }
+                });
+                
+                if (successfulGenerations > 0) {
+                    successState.classList.remove('hidden');
+                    textGenerationContainer.classList.remove('hidden');
+                } else {
+                    throw new Error("Semua proses pembuatan gambar gagal.");
+                }
+
+            } catch (err) {
+                let userFriendlyError = "Terjadi kesalahan saat menghubungi AI. Ini bisa terjadi jika gambar terlalu kompleks atau ada masalah sementara pada layanan.";
+                if (err.message.includes("API key")) {
+                    userFriendlyError = err.message;
+                }
+                console.error("Error during AI generation:", err);
+                errorMsg.textContent = userFriendlyError;
+                errorMsg.classList.remove('hidden');
+            } finally {
+                loadingState.classList.add('hidden');
+                generateBtn.disabled = false;
+            }
+        };
+
+        const handleGenerateText = async () => {
+            textLoadingState.classList.remove('hidden');
+            textSuccessState.classList.add('hidden');
+            generateTextBtn.disabled = true;
+
+            try {
+                const prompt = `Anda adalah seorang ahli pemasaran digital. Tuliskan sebuah caption iklan yang menarik untuk media sosial. Produknya adalah '${productCategorySelect.options[productCategorySelect.selectedIndex].text}', dengan tema '${themeSelect.options[themeSelect.selectedIndex].text}', dan target audiensnya adalah '${audienceSelect.options[audienceSelect.selectedIndex].text}'. Buat caption yang singkat, menarik, dan sertakan beberapa hashtag yang relevan.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }]
+                };
+
+                const candidates = await callGeminiAPI(payload, 'gemini-2.5-flash-preview-05-20');
+                const text = candidates[0].content?.parts?.[0]?.text;
+
+                if (!text) {
+                    throw new Error("AI tidak menghasilkan teks.");
+                }
+
+                generatedText.value = text;
+                textSuccessState.classList.remove('hidden');
+
+            } catch (err) {
+                console.error("Error during text generation:", err);
+                generatedText.value = `Gagal membuat teks: ${err.message}`;
+                textSuccessState.classList.remove('hidden');
+            } finally {
+                textLoadingState.classList.add('hidden');
+                generateTextBtn.disabled = false;
+            }
+        };
+        
+        const handleCopyText = () => {
+            generatedText.select();
+            document.execCommand('copy');
+            copyTextBtn.textContent = 'Tersalin!';
+            setTimeout(() => {
+                copyTextBtn.textContent = 'Salin Teks';
+            }, 1500);
+        };
+
+        // Modal Logic
+        const openModal = (modal) => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        const closeModal = (modal) => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        helpBtn.addEventListener('click', () => openModal(helpModal));
+        privacyBtn.addEventListener('click', () => openModal(privacyModal));
+        
+        document.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => closeModal(e.target.closest('.fixed')));
+        });
+
+        saveApiKeyBtn.addEventListener('click', () => {
+            userApiKey = apiKeyInput.value.trim();
+            if (userApiKey) {
+                localStorage.setItem('geminiApiKey', userApiKey);
+                apiKeyStatus.textContent = "Kunci API berhasil disimpan!";
+                apiKeyInput.placeholder = "Kunci API sudah tersimpan";
+            } else {
+                localStorage.removeItem('geminiApiKey');
+                apiKeyStatus.textContent = "Kunci API dihapus.";
+                apiKeyInput.placeholder = "Masukkan kunci API Anda di sini";
+            }
+            apiKeyStatus.classList.remove('hidden');
+            setTimeout(() => {
+                apiKeyStatus.classList.add('hidden');
+                closeModal(privacyModal);
+            }, 1500);
+        });
+
+        // Event Listeners
+        document.getElementById('product-upload').addEventListener('change', (e) => handleFileUpload(e, 'product'));
+        document.getElementById('subject-upload').addEventListener('change', (e) => handleFileUpload(e, 'subject'));
+        document.getElementById('delete-product-overlay').addEventListener('click', () => resetUploadUI('product'));
+        document.getElementById('delete-subject-overlay').addEventListener('click', () => resetUploadUI('subject'));
+        generateBtn.addEventListener('click', handleGenerate);
+        generateTextBtn.addEventListener('click', handleGenerateText);
+        copyTextBtn.addEventListener('click', handleCopyText);
+        
+        resultGrid.addEventListener('click', (e) => {
+            const container = e.target.closest('.result-image-container');
+            if (container) {
+                const img = container.querySelector('.result-image-item');
+                if (img) {
+                    modalImg.src = img.src;
+                    openModal(previewModal);
+                }
+            }
+        });
+
+        previewModal.addEventListener('click', () => {
+            closeModal(previewModal);
+        });
+
+        checkGenerateButton();
+    });
+    </script>
+</body>
+</html>
+
